@@ -1,61 +1,58 @@
 #include "monty.h"
-
 /**
- * is_number - function of the prototype
- * @n: integer
- * Return: 0 if is number, else -1 if not
- */
-int is_number(const char *n)
+ * op_stack - function of the prototype
+ * @head: stack head
+ * @counter: line number
+*/
+void op_stack(stack_t **head, unsigned int counter)
 {
-	int x = 0;
-
-	if (*n == '-')
-		x = 1;
-	for (; *(n + x) != '\0'; x++)
-	{
-		if (isdigit(*(n + x)) == 0)
-			return (-1);
-	}
-	return (0);
+	(void)head;
+	(void)counter;
+	bus.lifi = 0;
 }
 /**
- * push - function of the prototype
- * @h: head of linked list (node at the bottom of stack)
- * @line_number: bytecode line number
- * @n: integer
- */
-void push(stack_t **h, unsigned int line_number, const char *n)
+ * op_queue - function of the prototype
+ * @head: stack head
+ * @counter: line_number
+ * Return: no return
+*/
+void op_queue(stack_t **head, unsigned int counter)
 {
-	if (!h)
-		return;
-	if (is_number(n) == -1)
+	(void)head;
+	(void)counter;
+	bus.lifi = 1;
+}
+
+/**
+ * addtailst - function of the prototype
+ * @n: new_value
+ * @head: head of the stack
+*/
+void addtailst(stack_t **head, int n)
+{
+	stack_t *node1, *vx;
+
+	vx = *head;
+	node1 = malloc(sizeof(stack_t));
+	if (node1 == NULL)
 	{
-		printf("L%u: usage: push integer\n", line_number);
-		free_dlist(h);
-		exit(EXIT_FAILURE);
+		printf("Error\n");
+	}
+	node1->n = n;
+	node1->next = NULL;
+	if (vx)
+	{
+		while (vx->next)
+			vx = vx->next;
+	}
+	if (!vx)
+	{
+		*head = node1;
+		node1->prev = NULL;
 	}
 	else
 	{
-		if (add_end_node(h, atoi(n)) == -1)
-		{
-			free_dlist(h);
-			exit(EXIT_FAILURE);
-		}
+		vx->next = node1;
+		node1->prev = vx;
 	}
-}
-/**
- * pop - function of the prototype
- * @h: head of linked list (node at the bottom of stack)
- * @line_number: bytecode line number
- */
-void pop(stack_t **h, unsigned int line_number)
-{
-	if (h == NULL || *h == NULL)
-	{
-		printf("L%u: can't pop an empty stack\n", line_number);
-		free_dlist(h);
-		exit(EXIT_FAILURE);
-	}
-	else
-		delete_end_node(h);
 }

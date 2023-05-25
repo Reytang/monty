@@ -1,74 +1,49 @@
+#include<stdio.h>
 #include "monty.h"
 
+ssize_t getline(char **lineptr, size_t *n, FILE *stream);
+bus_t bus = { NULL, NULL, NULL, 0 };
 /**
- * main - function of the prototype
- * @argc: argc counter
- * @argv: arguments
- * Return: 0 on success
- */
+* main - funtion of the main prototype
+* @argc: arguments
+* @argv: file location
+* Return: 0 on success
+*/
 int main(int argc, char *argv[])
 {
-	int x, ispushs = 0;
-	unsigned int lines = 1;
-	ssize_t n_read;
-	char *buffers, *tokens;
-	stack_t *h = NULL;
+	char *info;
+	FILE *files;
+	size_t sizes = 0;
+	ssize_t read = 1;
+	stack_t *stacks = NULL;
+	unsigned int count = 0;
 
 	if (argc != 2)
 	{
-		printf("USAGE: monty file\n");
+		fprintf(stderr, "USAGE: monty file\n");
 		exit(EXIT_FAILURE);
 	}
-	x = open(argv[1], O_RDONLY);
-	if (x == -1)
+	files = fopen(argv[1], "r");
+	bus.files = files;
+	if (!files)
 	{
-		printf("Error: Can't open file %s\n", argv[1]);
+		fprintf(stderr, "Error: Can't open file %s\n", argv[1]);
 		exit(EXIT_FAILURE);
 	}
-	buffers = malloc(sizeof(char) * 10000);
-	if (!buffers)
-		return (0);
-	n_read = read(x, buffers, 10000);
-	if (n_read == -1)
+	while (read > 0)
 	{
-		free(buffers);
-		close(x);
-		exit(EXIT_FAILURE);
+		info = NULL;
+		read = getline(&info, &sizes, files);
+		bus.info = info;
+		count++;
+		if (read > 0)
+		{
+			startopcode(info, &stacks, count, files);
+		}
+		free(info);
 	}
-	tokens = strtok(buffers, "\n\t\a\r ;:");
-	while (tokens != NULL)
-	{
-		if (ispushs == 1)
-		{
-			push(&h, lines, tokens);
-			ispushs = 0;
-			tokens = strtok(NULL, "\n\t\a\r ;:");
-			lines++;
-			continue;
-		}
-		else if (strcmp(tokens, "push") == 0)
-		{
-			ispushs = 1;
-			tokens = strtok(NULL, "\n\t\a\r ;:");
-			continue;
-		}
-		else
-		{
-			if (get_op_func(tokens) != 0)
-			{
-				get_op_func(tokens)(&h, lines);
-			}
-			else
-			{
-				free_dlist(&h);
-				printf("L%d: unknown instruction %s\n", lines, tokens);
-				exit(EXIT_FAILURE);
-			}
-		}
-		lines++;
-		tokens = strtok(NULL, "\n\t\a\r ;:");
-	}
-	free_dlist(&h); free(buffers);
-	close(x);
+	clear_dll(stacks);
+	fclose(files);
 	return (0);
 }
+
